@@ -19,13 +19,18 @@ class EmailBuilder:
         receiver (str, optional): The email address of the receiver.
         subject (str, optional): The subject of the email.
         body (str, optional): The body content of the email.
+        html_body (str, optional): The html body content of the email.
 
     Raises:
         ValueError: If the provided receiver email address is invalid.
     """
 
     def __init__(
-        self, receiver: str = None, subject: str = None, body: str = None
+        self,
+        receiver: str = None,
+        subject: str = None,
+        body: str = None,
+        html_body: str = None,
     ) -> None:
         self.message = EmailMessage()
 
@@ -40,6 +45,9 @@ class EmailBuilder:
 
         if body:
             self.message.set_content(body)
+
+        if html_body:
+            self.message.set_content(html_body)
 
     def set_receiver(self, receiver: str) -> Self:
         """
@@ -77,20 +85,22 @@ class EmailBuilder:
         new_email.message["Subject"] = subject
         return new_email
 
-    def set_body(self, body: str) -> Self:
+    def set_body(self, body: str, is_html: bool = False) -> Self:
         """
         Sets the body of the email.
 
         Args:
             body (str): The body content of the email.
+            is_html (bool, optional): Flag to indicate if body content is HTML.
 
         Returns:
             Self: Returns a copy of itself for fluent chaining.
         """
-
-        new_email = self
-        new_email.message.set_content(body)
-        return new_email
+        if is_html:
+            self.message.add_alternative(body, subtype="html")
+        else:
+            self.message.set_content(body)
+        return self
 
     def build(self) -> EmailMessage:
         """
